@@ -8,7 +8,7 @@ Ray Tracing in One Weekend, by Peter Shirley, January 2016
 
 Ray Tracing: the Next Week, by Peter Shirley, March 2016
 
-Ray Tracing: The Rest Of Your Life, by Peter Shirley,
+Ray Tracing: The Rest Of Your Life, by Peter Shirley, March 2016
 
 
 You can download them in this page:
