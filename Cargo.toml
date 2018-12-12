@@ -1,0 +1,8 @@
+[package]
+name = "ray-tracing-rs"
+version = "0.1.0"
+authors = ["zhouhang95 <765229842@qq.com>"]
+
+[dependencies]
+rand = "0.6"
+
