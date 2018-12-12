@@ -1,6 +1,6 @@
 # ray-tracing-rs
 
-This is the rust implement of ray tracer.
+This is the rust implement of a ray tracer.
 
 I refer these books:
 
