@@ -21,10 +21,24 @@ use std::f32;
 use rand::Rng;
 
 
+fn random_in_unit_sphere() -> Vec3 {
+    let mut p;
+    loop {
+        p = Vec3::random() * 2. - Vec3::ones();
+        if p.length() < 1. {
+            break;
+        }
+    }
+    p
+}
+
 fn color(r: Ray, world: &HitableList) -> Vec3 {
     let mut rec = HitRecord::default();
-    if world.hit(r, 0., std::f32::MAX, &mut rec) == true {
-        (rec.normal + Vec3::ones()) * 0.5
+    //be lighter when using 0.001 instead of 0.
+    //because more rays are missing, and then return background color
+    if world.hit(r, 0.001, std::f32::MAX, &mut rec) == true {
+        let target = rec.p + rec.normal + random_in_unit_sphere();
+        color(Ray::new(rec.p, target - rec.p), world) * 0.5
     } else {
         let unit_direction = r.direction().unit_vector();
         let t = unit_direction.y() * 0.5 + 0.5;
@@ -57,6 +71,7 @@ fn main() {
                 col = col + color(r, &list);
             }
             col = col / (ns as f32);
+            col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt());
             let ir = (255.99 * col.r()) as i32;
             let ig = (255.99 * col.g()) as i32;
             let ib = (255.99 * col.b()) as i32;

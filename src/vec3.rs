@@ -5,6 +5,8 @@ use std::ops::Div;
 
 use std::f32;
 
+use rand::Rng;
+
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
     e: [f32;3],
@@ -21,6 +23,10 @@ impl Vec3 {
         Vec3 {
             e: [1., 1., 1.,],
         }
+    }
+    pub fn random() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Vec3::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>())
     }
 
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
