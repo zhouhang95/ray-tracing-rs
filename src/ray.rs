@@ -8,6 +8,12 @@ pub struct Ray {
 
 
 impl Ray {
+    pub fn default() -> Ray {
+        Ray {
+            o: Vec3::zeros(),
+            d: Vec3::zeros(),
+        }
+    }
     pub fn new(origin: Vec3, direction: Vec3) -> Ray {
         Ray {
             o: origin,

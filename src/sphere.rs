@@ -2,17 +2,20 @@ use crate::vec3::{Vec3, dot};
 use crate::ray::Ray;
 use crate::hitable::Hitable;
 use crate::hitable::HitRecord;
+use crate::material::Material;
 
 pub struct Sphere {
     center: Vec3,
     radius: f32,
+    material: usize,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32) -> Sphere {
+    pub fn new(center: Vec3, radius: f32, material: usize) -> Sphere {
         Sphere {
             center,
             radius,
+            material,
         }
     }
 }
@@ -29,17 +32,16 @@ impl Hitable for Sphere {
             temp = (-b-discriminant.sqrt()) / a;
             if t_min < temp && temp < t_max {
                 let p = r.point_at_parameter(temp);
-                *rec = HitRecord::new(temp, p, (p - self.center) / self.radius);
+                *rec = HitRecord::new(temp, p, (p - self.center) / self.radius, Some(self.material));
                 return true;
             }
             temp = (-b+discriminant.sqrt()) / a;
             if t_min < temp && temp < t_max {
                 let p = r.point_at_parameter(temp);
-                *rec = HitRecord::new(temp, p, (p - self.center) / self.radius);
+                *rec = HitRecord::new(temp, p, (p - self.center) / self.radius, Some(self.material));
                 return true;
             }
         }
         return false;
-
     }
 }

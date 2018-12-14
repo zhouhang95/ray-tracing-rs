@@ -29,6 +29,17 @@ impl Vec3 {
         Vec3::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>())
     }
 
+    pub fn random_in_unit_sphere() -> Vec3 {
+        let mut p;
+        loop {
+            p = Vec3::random() * 2. - Vec3::ones();
+            if p.length() < 1. {
+                break;
+            }
+        }
+        p
+    }
+
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 {
             e: [x, y, z,],
@@ -119,5 +130,9 @@ impl Div<f32> for Vec3 {
 
 pub fn dot(v1: Vec3, v2: Vec3) -> f32 {
     v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2]
+}
+
+pub fn ele_mul(v1: Vec3, v2: Vec3) -> Vec3 {
+    Vec3::new(v1.e[0] * v2.e[0], v1.e[1] * v2.e[1], v1.e[2] * v2.e[2])    
 }
 
