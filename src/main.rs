@@ -18,7 +18,7 @@ use crate::hitable_list::HitableList;
 use crate::hitable::{HitRecord, Hitable};
 use crate::camera::Camera;
 use crate::sphere::Sphere;
-use crate::material::{Material, Lambertian, Metal};
+use crate::material::{Material, Lambertian, Metal, Dielectric};
 
 use std::f32;
 use rand::Rng;
@@ -55,7 +55,7 @@ fn main() {
     materials.push(Box::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3))));
     materials.push(Box::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))));
     materials.push(Box::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)));
-    materials.push(Box::new(Metal::new(Vec3::new(0.8, 0.8, 0.8), 0.8)));
+    materials.push(Box::new(Dielectric::new(1.5)));
 
 
     
