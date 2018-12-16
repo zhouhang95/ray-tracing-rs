@@ -44,8 +44,8 @@ fn color(r: Ray, world: &HitableList, materials: &Vec<Box<dyn Material>>, depth:
 }
 
 fn main() {
-    let nx = 400;
-    let ny = 200;
+    let nx = 200;
+    let ny = 100;
     let ns = 100;
     println!("P3");
     println!("{} {}", nx, ny);
@@ -63,7 +63,11 @@ fn main() {
     list.push(Box::new(Sphere::new(Vec3::new(0., 0., -1.), 0.5, 0)));
     list.push(Box::new(Sphere::new(Vec3::new(0., -100.5, -1.), 100., 1)));
     list.push(Box::new(Sphere::new(Vec3::new(1., 0., -1.), 0.5, 2)));
-    list.push(Box::new(Sphere::new(Vec3::new(-1., 0., -1.), 0.5, 3)));
+    list.push(Box::new(Sphere::new(Vec3::new(-1., 0., -1.), 0.5, 0)));
+    //let r = (std::f32::consts::PI / 4.).cos();
+    //list.push(Box::new(Sphere::new(Vec3::new(-r, 0., -1.), r, 0)));
+    //list.push(Box::new(Sphere::new(Vec3::new(r, 0., -1.), r, 1)));
+
     
     let camera = Camera::default();
     let mut rng = rand::thread_rng();
