@@ -30,15 +30,27 @@ impl Vec3 {
     }
 
     pub fn random_in_unit_sphere() -> Vec3 {
-        let mut p;
+        let mut rng = rand::thread_rng();
         loop {
-            p = Vec3::random() * 2. - Vec3::ones();
+            let p = Vec3::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>());
+            let p = p * 2. - Vec3::ones();
             if p.length() < 1. {
-                break;
+                return p;
             }
         }
-        p
     }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        loop {
+            let p = Vec3::new(rng.gen::<f32>(), rng.gen::<f32>(), 0.);
+            let p = p * 2. - Vec3::new(1., 1., 0.);
+            if p.length() < 1. {
+                return p;
+            }
+        }
+    }
+    
 
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 {

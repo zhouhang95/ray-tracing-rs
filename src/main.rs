@@ -44,9 +44,9 @@ fn color(r: Ray, world: &HitableList, materials: &Vec<Box<dyn Material>>, depth:
 }
 
 fn main() {
-    let nx = 200;
-    let ny = 100;
-    let ns = 100;
+    let nx = 400;
+    let ny = 200;
+    let ns = 1000;
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
