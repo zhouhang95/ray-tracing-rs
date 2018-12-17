@@ -40,13 +40,13 @@ impl Camera {
         }
     }
     pub fn default() -> Camera {
-        let lookfrom = Vec3::new(-2., 2., 1.);
-        let lookat = Vec3::new(0., 0., -1.);
+        let lookfrom = Vec3::new(13., 2., 3.);
+        let lookat = Vec3::new(0., 0., 0.);
         let vup = Vec3::new(0., 1., 0.);
         let dist_to_focus = (lookfrom - lookat).length();
-        let aperture = 1.;
+        let aperture = 0.1;
 
-        Camera::new(lookfrom, lookat, vup, 45., 2., aperture, dist_to_focus)
+        Camera::new(lookfrom, lookat, vup, 20., 2., aperture, dist_to_focus)
     }
     pub fn get_ray(&self, u: f32, v: f32) -> Ray {
         let rd = Vec3::random_in_unit_disk() * self.lens_radius;

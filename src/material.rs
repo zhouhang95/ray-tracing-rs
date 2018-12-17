@@ -2,6 +2,8 @@ use crate::vec3::{Vec3, dot};
 use crate::ray::Ray;
 use crate::hitable::{HitRecord, Hitable};
 
+use rand::Rng;
+
 pub trait Material {
     fn scatter(&self, r_in: Ray, rec: HitRecord, attenuation: &mut Vec3, scattered: &mut Ray) -> bool;
 }
@@ -66,6 +68,11 @@ fn refract(v: Vec3, n: Vec3, ni_over_nt: f32, refracted: &mut Vec3) -> bool {
     }
 }
 
+fn schlick(cosine: f32, ref_idx: f32) -> f32 {
+    let r0 = (1. - ref_idx) / (1. + ref_idx);
+    let r0 = r0 * r0;
+    r0 + (1. - r0) * (1. - cosine).powi(5)
+}
 
 pub struct Dielectric {
     ref_idx: f32,
@@ -82,19 +89,29 @@ impl Dielectric {
 impl Material for Dielectric {
     fn scatter(&self, r_in: Ray, rec: HitRecord, attenuation: &mut Vec3, scattered: &mut Ray) -> bool {
         *attenuation = Vec3::ones();
-        let (out_normal, ni_over_nt) = if dot(r_in.direction(), rec.normal) < 0. {
-            (rec.normal, 1. / self.ref_idx)
-        } else {
-            (rec.normal * (-1.), self.ref_idx)
+        let (out_normal, ni_over_nt, cosine) = if dot(r_in.direction(), rec.normal) < 0. { // into
+            let cosine = -dot(r_in.direction(), rec.normal) / r_in.direction().length();
+            (rec.normal, 1. / self.ref_idx, cosine)
+        } else { // out
+            let cosine = dot(r_in.direction(), rec.normal) / r_in.direction().length();
+            let cosine = f32::sqrt(1. - self.ref_idx * self.ref_idx * (1. - cosine * cosine));
+            (rec.normal * (-1.), self.ref_idx, cosine)
         };
         let mut refracted = Vec3::zeros();
-        if refract(r_in.direction(), out_normal, ni_over_nt, &mut refracted) {
-            *scattered = Ray::new(rec.p, refracted);
-            true
+        let reflect_prob = if refract(r_in.direction(), out_normal, ni_over_nt, &mut refracted) {
+            schlick(cosine, self.ref_idx)
         } else {
+            1.
+        };
+
+        let mut rng = rand::thread_rng();
+        *scattered = if rng.gen::<f32>() < reflect_prob {
             let reflected = reflect(r_in.direction(), rec.normal);
-            *scattered = Ray::new(rec.p, reflected);
-            false
-        }
+            Ray::new(rec.p, reflected)
+        } else {
+            Ray::new(rec.p, refracted)
+        };
+        true
+
     }
 }

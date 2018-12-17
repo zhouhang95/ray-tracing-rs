@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unreachable_code)]
+#![allow(unused_assignments)]
 
 extern crate rand;
 
@@ -46,7 +47,7 @@ fn color(r: Ray, world: &HitableList, materials: &Vec<Box<dyn Material>>, depth:
 fn main() {
     let nx = 400;
     let ny = 200;
-    let ns = 1000;
+    let ns = 100;
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -63,12 +64,13 @@ fn main() {
     list.push(Box::new(Sphere::new(Vec3::new(0., 0., -1.), 0.5, 0)));
     list.push(Box::new(Sphere::new(Vec3::new(0., -100.5, -1.), 100., 1)));
     list.push(Box::new(Sphere::new(Vec3::new(1., 0., -1.), 0.5, 2)));
-    list.push(Box::new(Sphere::new(Vec3::new(-1., 0., -1.), 0.5, 0)));
+    list.push(Box::new(Sphere::new(Vec3::new(-1., 0., -1.), 0.5, 3)));
+    //list.push(Box::new(Sphere::new(Vec3::new(-1., 0., -1.), -0.45, 3)));
     //let r = (std::f32::consts::PI / 4.).cos();
     //list.push(Box::new(Sphere::new(Vec3::new(-r, 0., -1.), r, 0)));
     //list.push(Box::new(Sphere::new(Vec3::new(r, 0., -1.), r, 1)));
 
-    
+    let (list, materials) = random_scene();
     let camera = Camera::default();
     let mut rng = rand::thread_rng();
 
@@ -89,4 +91,49 @@ fn main() {
             println!("{} {} {}", ir, ig, ib);
         }
     }
+}
+
+fn random_scene() -> (HitableList, Vec<Box<dyn Material>>) {
+    let mut rng = rand::thread_rng();
+    let mut i = 0;
+    let mut list: HitableList = Vec::new();
+    let mut materials : Vec<Box<dyn Material>> = Vec::new();
+    materials.push(Box::new(Lambertian::new(Vec3::new(0.5, 0.5, 0.5))));
+    list.push(Box::new(Sphere::new(Vec3::new(0., -1000., -1.), 1000., i)));
+    i += 1;
+    for a in -11..11 {
+        for b in -11..11 {
+            let a = a as f32;
+            let b = b as f32;
+            let choose_mat = rng.gen::<f32>();
+            let center = Vec3::new(a + 0.9 * rng.gen::<f32>(), 0.2, b + 0.9 * rng.gen::<f32>());
+            if (center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    materials.push(Box::new(Lambertian::new(ele_mul(Vec3::random(), Vec3::random()))));
+                    list.push(Box::new(Sphere::new(center, 0.2, i)));
+                } else if choose_mat < 0.95 {
+                    materials.push(Box::new(Metal::new( (Vec3::random() + Vec3::ones()) * 0.5, 0.5 * rng.gen::<f32>() )));
+                    list.push(Box::new(Sphere::new(center, 0.2, i)));
+                } else {
+                    materials.push(Box::new(Dielectric::new(1.5)));
+                    list.push(Box::new(Sphere::new(center, 0.2, i)));
+                }
+                i += 1;
+            }
+        }
+    }
+    materials.push(Box::new(Dielectric::new(1.5)));
+    list.push(Box::new(Sphere::new(Vec3::new(0., 1., 0.), 1., i)));
+    i += 1;
+
+    materials.push(Box::new(Lambertian::new(Vec3::new(0.4, 0.2, 0.1))));
+    list.push(Box::new(Sphere::new(Vec3::new(-4., 1., 0.), 1., i)));
+    i += 1;
+
+    materials.push(Box::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.)));
+    list.push(Box::new(Sphere::new(Vec3::new(4., 1., 0.), 1., i)));
+    i += 1;
+
+    (list, materials)
+
 }
