@@ -4,6 +4,8 @@
 #![allow(unused_assignments)]
 
 extern crate rand;
+extern crate num_cpus;
+extern crate threadpool;
 
 mod vec3;
 mod ray;
@@ -12,6 +14,7 @@ mod hitable_list;
 mod sphere;
 mod camera;
 mod material;
+mod image;
 
 use crate::vec3::{Vec3, dot, ele_mul};
 use crate::ray::Ray;
@@ -20,9 +23,13 @@ use crate::hitable::{HitRecord, Hitable};
 use crate::camera::Camera;
 use crate::sphere::Sphere;
 use crate::material::{Material, Lambertian, Metal, Dielectric};
+use crate::image::Image;
 
 use std::f32;
+use std::sync::mpsc::channel;
+use std::sync::Arc;
 use rand::Rng;
+use threadpool::ThreadPool;
 
 
 fn color(r: Ray, world: &HitableList, materials: &Vec<Box<dyn Material>>, depth: i32) -> Vec3 {
@@ -45,13 +52,11 @@ fn color(r: Ray, world: &HitableList, materials: &Vec<Box<dyn Material>>, depth:
 }
 
 fn main() {
-    let nx = 400;
-    let ny = 200;
+    let nx = 200;
+    let ny = 100;
     let ns = 100;
-    println!("P3");
-    println!("{} {}", nx, ny);
-    println!("255");
-
+    let mut image = Image::new(nx, ny);
+    
     let mut materials : Vec<Box<dyn Material>> = Vec::new();
     materials.push(Box::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3))));
     materials.push(Box::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))));
@@ -71,26 +76,40 @@ fn main() {
     //list.push(Box::new(Sphere::new(Vec3::new(r, 0., -1.), r, 1)));
 
     let (list, materials) = random_scene();
+    let (list, materials) = (Arc::new(list), Arc::new(materials));
     let camera = Camera::default();
-    let mut rng = rand::thread_rng();
+    let (tx, rx) = channel();
+    let pool = ThreadPool::new(num_cpus::get());
+
+
+
 
     for j in (0..ny).rev() {
-        for i in 0..nx {
-            let mut col = Vec3::zeros();
-            for _ in 0..ns {
-                let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
-                let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
-                let r = camera.get_ray(u, v);
-                col = col + color(r, &list, &materials, 0 );
+        let tx = tx.clone();
+        let list = list.clone();
+        let materials = materials.clone();
+
+        pool.execute(move || {
+            let mut rng = rand::thread_rng();
+            for i in 0..nx {
+                let mut col = Vec3::zeros();
+                for _ in 0..ns {
+                    let u = (i as f32 + rng.gen::<f32>()) / (nx as f32);
+                    let v = (j as f32 + rng.gen::<f32>()) / (ny as f32);
+                    let r = camera.get_ray(u, v);
+                    col = col + color(r, &list, &materials, 0 );
+                }
+                col = col / (ns as f32);
+                col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt());
+                tx.send((i, j, col)).unwrap();
             }
-            col = col / (ns as f32);
-            col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt());
-            let ir = (255.99 * col.r()) as i32;
-            let ig = (255.99 * col.g()) as i32;
-            let ib = (255.99 * col.b()) as i32;
-            println!("{} {} {}", ir, ig, ib);
-        }
+        });
     }
+    drop(tx);
+    while let Ok((i, j, col)) = rx.recv() {
+        image.set_pixel(i, j, col);
+    }
+    image.dump();
 }
 
 fn random_scene() -> (HitableList, Vec<Box<dyn Material>>) {

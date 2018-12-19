@@ -3,6 +3,7 @@ use crate::ray::Ray;
 use std::f32;
 use std::f32::consts::PI;
 
+#[derive(Copy, Clone)]
 pub struct Camera {
     origin: Vec3,
     lower_left_corner: Vec3,

@@ -4,7 +4,7 @@ use crate::hitable::{HitRecord, Hitable};
 
 use rand::Rng;
 
-pub trait Material {
+pub trait Material: Send + Sync {
     fn scatter(&self, r_in: Ray, rec: HitRecord, attenuation: &mut Vec3, scattered: &mut Ray) -> bool;
 }
 
