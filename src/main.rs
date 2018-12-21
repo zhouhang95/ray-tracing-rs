@@ -21,7 +21,7 @@ use crate::ray::Ray;
 use crate::hitable_list::HitableList;
 use crate::hitable::{HitRecord, Hitable};
 use crate::camera::Camera;
-use crate::sphere::Sphere;
+use crate::sphere::{Sphere, MovingSphere};
 use crate::material::{Material, Lambertian, Metal, Dielectric};
 use crate::image::Image;
 
@@ -52,9 +52,9 @@ fn color(r: Ray, world: &HitableList, materials: &Vec<Box<dyn Material>>, depth:
 }
 
 fn main() {
-    let nx = 200;
-    let ny = 100;
-    let ns = 100;
+    let nx = 600;
+    let ny = 300;
+    let ns = 1000;
     let mut image = Image::new(nx, ny);
     
     let mut materials : Vec<Box<dyn Material>> = Vec::new();
@@ -70,10 +70,6 @@ fn main() {
     list.push(Box::new(Sphere::new(Vec3::new(0., -100.5, -1.), 100., 1)));
     list.push(Box::new(Sphere::new(Vec3::new(1., 0., -1.), 0.5, 2)));
     list.push(Box::new(Sphere::new(Vec3::new(-1., 0., -1.), 0.5, 3)));
-    //list.push(Box::new(Sphere::new(Vec3::new(-1., 0., -1.), -0.45, 3)));
-    //let r = (std::f32::consts::PI / 4.).cos();
-    //list.push(Box::new(Sphere::new(Vec3::new(-r, 0., -1.), r, 0)));
-    //list.push(Box::new(Sphere::new(Vec3::new(r, 0., -1.), r, 1)));
 
     let (list, materials) = random_scene();
     let (list, materials) = (Arc::new(list), Arc::new(materials));
@@ -129,7 +125,11 @@ fn random_scene() -> (HitableList, Vec<Box<dyn Material>>) {
             if (center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
                 if choose_mat < 0.8 {
                     materials.push(Box::new(Lambertian::new(ele_mul(Vec3::random(), Vec3::random()))));
-                    list.push(Box::new(Sphere::new(center, 0.2, i)));
+                    //list.push(Box::new(Sphere::new(center, 0.2, i)));
+                    let center0 = center;
+                    let center1 = center + Vec3::new(0., 0.5 * rng.gen::<f32>(), 0.);
+                    list.push(Box::new(MovingSphere::new(center0, center1, 0., 1., 0.2, i)));
+
                 } else if choose_mat < 0.95 {
                     materials.push(Box::new(Metal::new( (Vec3::random() + Vec3::ones()) * 0.5, 0.5 * rng.gen::<f32>() )));
                     list.push(Box::new(Sphere::new(center, 0.2, i)));

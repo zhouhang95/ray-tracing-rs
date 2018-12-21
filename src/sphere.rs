@@ -45,3 +45,55 @@ impl Hitable for Sphere {
         return false;
     }
 }
+
+pub struct MovingSphere {
+    center0: Vec3,
+    center1: Vec3,
+    time0: f32,
+    time1: f32,
+    radius: f32,
+    material: usize,
+}
+
+impl MovingSphere {
+    pub fn new(center0: Vec3, center1: Vec3, time0: f32, time1: f32, radius: f32, material: usize) -> MovingSphere {
+        MovingSphere {
+            center0,
+            center1,
+            time0,
+            time1,
+            radius,
+            material,
+        }
+    }
+    pub fn center(&self, time: f32) -> Vec3 {
+        let ratio = (time - self.time0) / (self.time1 - self.time0);
+        self.center0 + (self.center1 - self.center0) * ratio
+    }
+}
+
+impl Hitable for MovingSphere {
+    fn hit(&self, r: Ray, t_min: f32, t_max: f32, rec: &mut HitRecord) -> bool {
+        let oc = r.origin() - self.center(r.time());
+        let a = dot(r.direction(), r.direction());
+        let b = dot(oc, r.direction());
+        let c = dot(oc, oc) - self.radius * self.radius;
+        let discriminant = b * b - a * c;
+        if discriminant > 0. {
+            let mut temp;
+            temp = (-b-discriminant.sqrt()) / a;
+            if t_min < temp && temp < t_max {
+                let p = r.point_at_parameter(temp);
+                *rec = HitRecord::new(temp, p, (p - self.center(r.time())) / self.radius, Some(self.material));
+                return true;
+            }
+            temp = (-b+discriminant.sqrt()) / a;
+            if t_min < temp && temp < t_max {
+                let p = r.point_at_parameter(temp);
+                *rec = HitRecord::new(temp, p, (p - self.center(r.time())) / self.radius, Some(self.material));
+                return true;
+            }
+        }
+        return false;
+    }
+}
