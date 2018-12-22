@@ -9,7 +9,7 @@ use rand::Rng;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
-    e: [f32;3],
+    pub e: [f32;3],
 }
 
 impl Vec3 {
@@ -158,4 +158,22 @@ pub fn ele_mul(v1: Vec3, v2: Vec3) -> Vec3 {
     Vec3::new(v1.e[0] * v2.e[0], v1.e[1] * v2.e[1], v1.e[2] * v2.e[2])    
 }
 
+pub fn ele_max(v1: Vec3, v2: Vec3) -> Vec3 {
+    Vec3 {
+        e : [
+            f32::max(v1.e[0], v2.e[0]),
+            f32::max(v1.e[1], v2.e[1]),
+            f32::max(v1.e[2], v2.e[2]),
+        ]
+    }  
+}
 
+pub fn ele_min(v1: Vec3, v2: Vec3) -> Vec3 {
+    Vec3 {
+        e : [
+            f32::min(v1.e[0], v2.e[0]),
+            f32::min(v1.e[1], v2.e[1]),
+            f32::min(v1.e[2], v2.e[2]),
+        ]
+    }  
+}

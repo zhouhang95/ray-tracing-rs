@@ -15,6 +15,7 @@ mod sphere;
 mod camera;
 mod material;
 mod image;
+mod aabb;
 
 use crate::vec3::{Vec3, dot, ele_mul};
 use crate::ray::Ray;

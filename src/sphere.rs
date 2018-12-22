@@ -3,6 +3,7 @@ use crate::ray::Ray;
 use crate::hitable::Hitable;
 use crate::hitable::HitRecord;
 use crate::material::Material;
+use crate::aabb::AABB;
 
 pub struct Sphere {
     center: Vec3,
@@ -43,6 +44,11 @@ impl Hitable for Sphere {
             }
         }
         return false;
+    }
+    fn bounding_box(&self, t0: f32, t1: f32, aabb: &mut AABB) -> bool {
+        let small = self.center - Vec3::new(self.radius, self.radius, self.radius);
+        let big = self.center + Vec3::new(self.radius, self.radius, self.radius);
+        AABB::new(small, big)
     }
 }
 
